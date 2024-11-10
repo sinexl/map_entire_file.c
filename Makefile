@@ -16,5 +16,10 @@ main.exe: main.c
 
 clean:
 	rm -rfv $(TARGETS)
-
+run: all
+	@echo "Running Linux binary:"
+	./main
+	@echo ""
+	@echo "Running Windows binary with Wine:"
+	wine ./main.exe || echo "Wine not installed or failed to run the Windows binary"
 # end
