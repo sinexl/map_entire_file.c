@@ -16,29 +16,28 @@
 #    include "windows.h"
 #endif // _WIN32
 
-#ifdef _WIN32
-#define Last_Error_Str (win32_err_to_str(GetLastError()))
-typedef HANDLE fd_t;
-#define INVALID_FD INVALID_HANDLE_VALUE
-#define F_READ (GENERIC_READ)
-#define F_WRITE (GENERIC_WRITE)
-#define F_READWRITE (GENERIC_READ | GENERIC_WRITE)
-#define M_READ (FILE_MAP_READ)
-#define M_WRITE (FILE_MAP_WRITE)
-#ifndef WIN32_MSG_SIZE
-#define WIN32_MSG_SIZE (4 * 1024)
-#endif // WIN32_MSG_SIZE
-
-#else // POSIX
-#define Last_Error_Str (strerror(errno))
+#ifndef _WIN32 // POSIX
 typedef int fd_t;
-#define INVALID_FD (-1)
-#define F_READ (O_RDONLY)
-#define F_WRITE (O_WRONLY)
-#define F_READWRITE (O_RDWR)
-#define M_READ (PROT_READ)
-#define M_WRITE (PROT_WRITE)
+#    define Last_Error_Str (strerror(errno))
+#    define INVALID_FD (-1)
+#    define F_READ (O_RDONLY)
+#    define F_WRITE (O_WRONLY)
+#    define F_READWRITE (O_RDWR)
+#    define M_READ (PROT_READ)
+#    define M_WRITE (PROT_WRITE)
 
+#else // Windows
+typedef HANDLE fd_t;
+#    define Last_Error_Str (win32_err_to_str(GetLastError()))
+#    define INVALID_FD INVALID_HANDLE_VALUE
+#    define F_READ (GENERIC_READ)
+#    define F_WRITE (GENERIC_WRITE)
+#    define F_READWRITE (GENERIC_READ | GENERIC_WRITE)
+#    define M_READ (FILE_MAP_READ)
+#    define M_WRITE (FILE_MAP_WRITE)
+#    ifndef WIN32_MSG_SIZE
+#        define WIN32_MSG_SIZE (4 * 1024)
+#    endif // WIN32_MSG_SIZE
 #endif // _WIN32
 
 #define return_defer(value) \
