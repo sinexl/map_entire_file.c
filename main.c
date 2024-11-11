@@ -128,7 +128,7 @@ fd_t fd_open(const char* path, int flags)
     SECURITY_ATTRIBUTES saAttr = { 0 };
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = TRUE;
-    wchar_t* wpath = malloc(sizeof(char) * (strlen(path) + 1));
+    wchar_t* wpath = malloc(sizeof(wchar_t) * (strlen(path) + 1));
     mbstowcs(wpath, path, strlen(path)+1);
 
     fd_t result = CreateFileW(
