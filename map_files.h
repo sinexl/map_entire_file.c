@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdarg.h>
-#include <ctype.h>
 
 #ifndef _WIN32
 #    include <errno.h>
