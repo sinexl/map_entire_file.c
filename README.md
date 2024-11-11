@@ -17,7 +17,7 @@ int main(int argc, const char** argv)
     bool result = map_entire_file(argv[1], &file, M_READ | M_WRITE);
     if (!result) return -1;
 
-    // We can now access it as char []
+    // We can now access file data as char []
     for (size_t i = 0; i < file.size; i++) {
         printf("%c", file.data[i]);
     }
