@@ -128,9 +128,11 @@ fd_t fd_open(const char* path, int flags)
     SECURITY_ATTRIBUTES saAttr = { 0 };
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = TRUE;
+    wchar_t* wpath = malloc(sizeof(char) * (strlen(path) + 1));
+    mbstowcs(wpath, path, strlen(path)+1);
 
-    fd_t result = CreateFile(
-        path,
+    fd_t result = CreateFileW(
+        wpath,
         flags,
         0,
         &saAttr,
@@ -140,9 +142,10 @@ fd_t fd_open(const char* path, int flags)
 
     if (result == INVALID_HANDLE_VALUE) {
         log_print(LOG_ERROR, "Could not open file %s: %s", path, Last_Error_Str());
+        free(wpath);
         return INVALID_FD;
     }
-
+    free(wpath);
     return result;
 #endif // _WIN32
 }
