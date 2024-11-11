@@ -18,7 +18,7 @@
 
 #ifndef _WIN32 // POSIX
 typedef int fd_t;
-#    define Last_Error_Str (strerror(errno))
+#    define Last_Error_Str() (strerror(errno))
 #    define INVALID_FD (-1)
 #    define F_READ (O_RDONLY)
 #    define F_WRITE (O_WRONLY)
@@ -28,7 +28,7 @@ typedef int fd_t;
 
 #else // Windows
 typedef HANDLE fd_t;
-#    define Last_Error_Str (win32_err_to_str(GetLastError()))
+#    define Last_Error_Str() (win32_err_to_str(GetLastError()))
 #    define INVALID_FD INVALID_HANDLE_VALUE
 #    define F_READ (GENERIC_READ)
 #    define F_WRITE (GENERIC_WRITE)
@@ -119,7 +119,7 @@ fd_t fd_open(const char* path, int flags)
     }
     fd_t result = open(path, flags);
     if (result < 0) {
-        log_print(LOG_ERROR, "Could not open file %s: %s", path, Last_Error_Str);
+        log_print(LOG_ERROR, "Could not open file %s: %s", path, Last_Error_Str());
         return INVALID_FD;
     }
     return result;
@@ -139,7 +139,7 @@ fd_t fd_open(const char* path, int flags)
         NULL);
 
     if (result == INVALID_HANDLE_VALUE) {
-        log_print(LOG_ERROR, "Could not open file %s: %s", path, Last_Error_Str);
+        log_print(LOG_ERROR, "Could not open file %s: %s", path, Last_Error_Str());
         return INVALID_FD;
     }
 
@@ -179,7 +179,7 @@ bool unmap_file(MappedFile *fm) {
 #endif
 
 defer:
-    if (!result) log_print(LOG_ERROR, "Could not unmap file %p: %s", fm->data, Last_Error_Str );
+    if (!result) log_print(LOG_ERROR, "Could not unmap file %p: %s", fm->data, Last_Error_Str() );
     if(result) {
         fm->data = NULL;
         fm->size = 0;
@@ -244,7 +244,7 @@ bool map_entire_file(const char* path, MappedFile* fm, int permissions)
 
 defer:
     if (!result)
-        log_print(LOG_ERROR, "Could not map file %s: %s", path, Last_Error_Str);
+        log_print(LOG_ERROR, "Could not map file %s: %s", path, Last_Error_Str());
     if (fd != INVALID_FD)
         fd_close(fd);
     return result;
