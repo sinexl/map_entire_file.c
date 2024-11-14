@@ -6,6 +6,9 @@ Partially inspired from [tsoding/nob.h](https://github.com/tsoding/nob.h/)
 # Usage
 
 ``` c
+// This if header-only library, so you need to define MAP_FILES_IMPLEMENTATION
+// to use it
+#define MAP_FILES_IMPLEMENTATION
 #include "map_files.h"
 #include <stdio.h>
 

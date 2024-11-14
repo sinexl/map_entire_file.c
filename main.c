@@ -1,5 +1,8 @@
 #include <ctype.h>
 #include <stdio.h>
+// This if header-only library, so you need to define MAP_FILES_IMPLEMENTATION
+// to use it
+#define MAP_FILES_IMPLEMENTATION
 #include "map_files.h"
 
 int main(void)

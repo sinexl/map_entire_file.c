@@ -46,6 +46,7 @@ typedef HANDLE fd_t;
         result = (value);   \
         goto defer;         \
     } while (0)
+
 typedef enum {
     LOG_INFO,
     LOG_WARNING,
@@ -53,6 +54,35 @@ typedef enum {
     LOG_NOTHING,
 } Log_Level;
 
+#ifdef _WIN32
+char* win32_err_to_str(DWORD err);
+#endif
+
+void log_print(Log_Level level, const char* fmt, ...);
+
+fd_t fd_open(const char* path, int flags);
+
+void fd_close(fd_t fd);
+
+typedef struct {
+    char* data;
+    size_t size;
+} MappedFile;
+
+bool unmap_file(MappedFile* fm);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+bool map_entire_file(const char* path, MappedFile* fm, int permissions);
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
+#ifdef MAP_FILES_IMPLEMENTATION
 #ifdef _WIN32
 char* win32_err_to_str(DWORD err)
 {
@@ -159,10 +189,6 @@ void fd_close(fd_t fd)
 #endif // _WIN32
 }
 
-typedef struct {
-    char* data;
-    size_t size;
-} MappedFile;
 
 bool unmap_file(MappedFile* fm)
 {
@@ -269,5 +295,6 @@ defer: if (!result)
 }
 #endif
 
+#endif // MAP_FILES_IMPLEMENTATION
 
 #endif // MAP_FILES_H_
