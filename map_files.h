@@ -46,7 +46,6 @@ typedef HANDLE fd_t;
         result = (value);   \
         goto defer;         \
     } while (0)
-
 typedef enum {
     LOG_INFO,
     LOG_WARNING,
@@ -55,21 +54,22 @@ typedef enum {
 } Log_Level;
 
 #ifdef _WIN32
-char *win32_err_to_str(DWORD err) {
-    static char win32ErrMsg[WIN32_MSG_SIZE] = {0};
+char* win32_err_to_str(DWORD err)
+{
+    static char win32ErrMsg[WIN32_MSG_SIZE] = { 0 };
     DWORD errMsgSize = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, LANG_USER_DEFAULT, win32ErrMsg,
-                                      WIN32_MSG_SIZE, NULL);
+        WIN32_MSG_SIZE, NULL);
 
     if (errMsgSize == 0) {
         if (GetLastError() != ERROR_MR_MID_NOT_FOUND) {
             if (sprintf(win32ErrMsg, "Could not get error message for 0x%lX", err) > 0) {
-                return (char *)&win32ErrMsg;
+                return (char*)&win32ErrMsg;
             } else {
                 return NULL;
             }
         } else {
             if (sprintf(win32ErrMsg, "Invalid Windows Error code (0x%lX)", err) > 0) {
-                return (char *)&win32ErrMsg;
+                return (char*)&win32ErrMsg;
             } else {
                 return NULL;
             }
@@ -83,7 +83,6 @@ char *win32_err_to_str(DWORD err) {
     return win32ErrMsg;
 }
 #endif
-
 
 void log_print(Log_Level level, const char* fmt, ...)
 {
@@ -130,7 +129,7 @@ fd_t fd_open(const char* path, int flags)
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = TRUE;
     wchar_t* wpath = malloc(sizeof(wchar_t) * (strlen(path) + 1));
-    mbstowcs(wpath, path, strlen(path)+1);
+    mbstowcs(wpath, path, strlen(path) + 1);
 
     fd_t result = CreateFileW(
         wpath,
@@ -165,7 +164,8 @@ typedef struct {
     size_t size;
 } MappedFile;
 
-bool unmap_file(MappedFile *fm) {
+bool unmap_file(MappedFile* fm)
+{
     if (fm->data == NULL) {
         log_print(LOG_ERROR, "Could not unmap file %p: fm->data is NULL", fm);
         return false;
@@ -173,30 +173,43 @@ bool unmap_file(MappedFile *fm) {
     bool result = true;
 
 #ifndef _WIN32
-    if (munmap((void*)fm->data, fm->size) == -1) return_defer(false);
+    if (munmap((void*)fm->data, fm->size) == -1)
+        return_defer(false);
     return_defer(true);
 
 #else
     // https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-unmapviewoffile
-    if(!UnmapViewOfFile(fm->data)) return_defer(false);
+    if (!UnmapViewOfFile(fm->data))
+        return_defer(false);
     return_defer(true);
 #endif
 
 defer:
-    if (!result) log_print(LOG_ERROR, "Could not unmap file %p: %s", fm->data, Last_Error_Str() );
-    if(result) {
+    if (!result)
+        log_print(LOG_ERROR, "Could not unmap file %p: %s", fm->data, Last_Error_Str());
+    if (result) {
         fm->data = NULL;
         fm->size = 0;
     }
     return result;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 bool map_entire_file(const char* path, MappedFile* fm, int permissions)
 {
+#ifndef _WIN32
+    char* mapped;
+#else
+    HANDLE mappingHandle;
+    LARGE_INTEGER size;
+#endif
+    int custom_flags = 0;
     int open_flags = 0;
     if (permissions & M_READ)
         open_flags |= F_READ;
-    if(permissions & M_WRITE)
+    if (permissions & M_WRITE)
         open_flags |= F_WRITE;
     bool result = true;
     fd_t fd = fd_open(path, open_flags);
@@ -207,9 +220,10 @@ bool map_entire_file(const char* path, MappedFile* fm, int permissions)
     struct stat finfo;
     if (fstat(fd, &finfo) == -1)
         return_defer(false);
-    int posix_flags = MAP_PRIVATE;
-    if (permissions & M_WRITE) posix_flags = MAP_SHARED;
-    char* mapped = mmap(NULL, finfo.st_size, permissions, posix_flags, fd, 0);
+    custom_flags = MAP_PRIVATE;
+    if (permissions & M_WRITE)
+        custom_flags = MAP_SHARED;
+    mapped = (char*)mmap(NULL, finfo.st_size, permissions, custom_flags, fd, 0);
     if (mapped == MAP_FAILED)
         return_defer(false);
 
