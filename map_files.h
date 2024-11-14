@@ -220,38 +220,40 @@ bool map_entire_file(const char* path, MappedFile* fm, int permissions)
 
 #else
     // https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-createfilemappingw
-    int win32_flags = 0;
-    if(permissions &  M_WRITE)
-        win32_flags = PAGE_READWRITE;
+    custom_flags = 0;
+    if (permissions & M_WRITE)
+        custom_flags = PAGE_READWRITE;
     else
-        win32_flags = PAGE_READONLY;
-    HANDLE mappingHandle = CreateFileMappingW(fd, NULL, win32_flags, 0, 0, NULL);
+        custom_flags = PAGE_READONLY;
+    mappingHandle = CreateFileMappingW(fd, NULL, custom_flags, 0, 0, NULL);
     if (mappingHandle == NULL)
         return_defer(false);
 
-    win32_flags = permissions;
-    if (permissions & (M_READ | M_WRITE)){
-        win32_flags = FILE_MAP_ALL_ACCESS;
+    custom_flags = permissions;
+    if (permissions & (M_READ | M_WRITE)) {
+        custom_flags = FILE_MAP_ALL_ACCESS;
     }
     // https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-mapviewoffile
-    fm->data = (char*)MapViewOfFile(mappingHandle, win32_flags, 0, 0, 0);
+    fm->data = (char*)MapViewOfFile(mappingHandle, custom_flags, 0, 0, 0);
     if (fm->data == NULL)
         return_defer(false);
 
-    LARGE_INTEGER size;
     if (!GetFileSizeEx(fd, &size))
         return_defer(false);
     fm->size = (size_t)size.QuadPart;
 
     return_defer(true);
 #endif // _WIN32
-
-defer:
-    if (!result)
+defer: if (!result)
         log_print(LOG_ERROR, "Could not map file %s: %s", path, Last_Error_Str());
     if (fd != INVALID_FD)
         fd_close(fd);
     return result;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif // MAP_FILES_H_
