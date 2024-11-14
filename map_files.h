@@ -79,9 +79,6 @@ bool map_entire_file(const char* path, MappedFile* fm, int permissions);
 }
 #endif
 
-
-
-
 #ifdef MAP_FILES_IMPLEMENTATION
 #ifdef _WIN32
 char* win32_err_to_str(DWORD err)
@@ -219,6 +216,7 @@ defer:
     }
     return result;
 }
+
 
 #ifdef __cplusplus
 extern "C" {
