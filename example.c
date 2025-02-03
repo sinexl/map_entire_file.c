@@ -1,11 +1,3 @@
-# map_entire_file.c
-
-Cross-platform example of mapping files into memory written in C \
-Partially inspired from [tsoding/nob.h](https://github.com/tsoding/nob.h/)
-
-# Usage
-
-``` c
 // This is header-only library, so you need to define MAP_FILES_IMPLEMENTATION
 // to use it
 #define MAP_FILES_IMPLEMENTATION
@@ -36,4 +28,3 @@ int main(int argc, const char** argv)
     // Unmap file and reset the variable
     unmap_file(&file);
 }
-```
