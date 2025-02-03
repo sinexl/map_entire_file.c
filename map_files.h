@@ -157,10 +157,12 @@ fd_t fd_open(const char* path, int flags)
     saAttr.bInheritHandle = TRUE;
     wchar_t* wpath = malloc(sizeof(wchar_t) * (strlen(path) + 1));
     mbstowcs(wpath, path, strlen(path) + 1);
+    DWORD acess = GENERIC_READ; 
 
+    if (flags & F_WRITE) acess |= GENERIC_WRITE; 
     fd_t result = CreateFileW(
         wpath,
-        flags,
+        acess,
         0,
         &saAttr,
         OPEN_EXISTING,
@@ -267,10 +269,14 @@ bool map_entire_file(const char* path, MappedFile* fm, int permissions)
     if (mappingHandle == NULL)
         return_defer(false);
 
-    custom_flags = permissions;
     if (permissions & (M_READ | M_WRITE)) {
         custom_flags = FILE_MAP_ALL_ACCESS;
+    } else if (permissions & M_READ) {
+        custom_flags = FILE_MAP_READ;
+    } else if (permissions & M_WRITE) {
+        custom_flags = FILE_MAP_WRITE;
     }
+
     // https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-mapviewoffile
     fm->data = (char*)MapViewOfFile(mappingHandle, custom_flags, 0, 0, 0);
     if (fm->data == NULL)
