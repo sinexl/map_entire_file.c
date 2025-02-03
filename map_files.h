@@ -21,21 +21,29 @@
 typedef int fd_t;
 #    define Last_Error_Str() (strerror(errno))
 #    define INVALID_FD (-1)
-#    define F_READ (O_RDONLY)
-#    define F_WRITE (O_WRONLY)
-#    define F_READWRITE (O_RDWR)
-#    define M_READ (PROT_READ)
-#    define M_WRITE (PROT_WRITE)
+typedef enum {
+    F_READ      = O_RDONLY,
+    F_WRITE     = O_WRONLY,
+    F_READWRITE = O_RDWR,
+} FileOpenPermission;
+typedef enum {
+    M_READ  = PROT_READ,
+    M_WRITE = PROT_WRITE,
+} MapPermission;
 
 #else // Windows
 typedef HANDLE fd_t;
 #    define Last_Error_Str() (win32_err_to_str(GetLastError()))
 #    define INVALID_FD INVALID_HANDLE_VALUE
-#    define F_READ (GENERIC_READ)
-#    define F_WRITE (GENERIC_WRITE)
-#    define F_READWRITE (GENERIC_READ | GENERIC_WRITE)
-#    define M_READ (FILE_MAP_READ)
-#    define M_WRITE (FILE_MAP_WRITE)
+typedef enum {
+    F_READ      = GENERIC_READ,
+    F_WRITE     = GENERIC_WRITE,
+    F_READWRITE = F_READ | F_WRITE,
+} FileOpenPermission;
+typedef enum {
+    M_READ  = FILE_MAP_READ,
+    M_WRITE = FILE_MAP_WRITE,
+} MapPermission;
 #    ifndef WIN32_MSG_SIZE
 #        define WIN32_MSG_SIZE (4 * 1024)
 #    endif // WIN32_MSG_SIZE
@@ -71,13 +79,7 @@ typedef struct {
 
 bool unmap_file(MappedFile* fm);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 bool map_entire_file(const char* path, MappedFile* fm, int permissions);
-#ifdef __cplusplus
-}
-#endif
 
 #ifdef MAP_FILES_IMPLEMENTATION
 #ifdef _WIN32
