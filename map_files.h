@@ -290,8 +290,10 @@ bool map_entire_file(const char* path, MappedFile* fm, int permissions)
 
     return_defer(true);
 #endif // _WIN32
-defer: if (!result)
+defer: if (!result){
         log_print(LOG_ERROR, "Could not map file %s: %s", path, Last_Error_Str());
+        memset(*fm, 0, sizeof(fm));
+    }
     if (fd != INVALID_FD)
         fd_close(fd);
     return result;
