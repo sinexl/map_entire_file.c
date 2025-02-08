@@ -12,6 +12,6 @@ SRC := $(shell find . -name "*.cpp")
 all: example
 
 example: $(SRC) $(HEADERS)
-	$(CC) $(CFLAGS) $(INCLUDE) -o example.out example.cpp
+	$(CC) $(CFLAGS) $(INCLUDE) -o example.out $(SRC)
 
 # end
