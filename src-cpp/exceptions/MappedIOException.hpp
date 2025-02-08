@@ -18,7 +18,7 @@ public:
 };
 
 class MappedFileOpenException : public MappedIOException {
-private:
+public:
     const char* path = nullptr;
 public:
     MappedFileOpenException()
