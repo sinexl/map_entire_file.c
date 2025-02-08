@@ -6,7 +6,7 @@ MappedFileWrite::MappedFileWrite(const char* path)
     this->open(path);
 }
 
-virtual void MappedFileWrite::open(const char* path) override
+void MappedFileWrite::open(const char* path)
 {
     bool res = map_entire_file(path, &fs, M_READ | M_WRITE);
     if (!res)

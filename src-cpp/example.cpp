@@ -1,4 +1,4 @@
-#include "MappedFileBase.hpp"
+#include "MappedFileWrite.hpp"
 #include <iostream>
 using namespace std;
 
