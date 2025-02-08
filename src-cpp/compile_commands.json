@@ -1,0 +1,20 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Wswitch-enum",
+      "-I../",
+      "-I./exceptions/",
+      "-o",
+      "example.out",
+      "example.cpp"
+    ],
+    "directory": "/home/sinex/Programming/cpp/map_entire_file/src-cpp",
+    "file": "/home/sinex/Programming/cpp/map_entire_file/src-cpp/example.cpp",
+    "output": "/home/sinex/Programming/cpp/map_entire_file/src-cpp/example.out"
+  }
+]

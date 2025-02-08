@@ -1,123 +1,69 @@
 #ifndef MAPPEDFILEBASE_H_
 #define MAPPEDFILEBASE_H_
+#include "MappedIOException.hpp"
 #define MAP_FILES_IMPLEMENTATION
 #include "map_files.h"
-#include <exception>
 #include <stdexcept>
 
-class MappedIOException : public std::exception {
-protected:
-    std::string message;
-
-public:
-    explicit MappedIOException(const std::string& msg)
-        : message(msg)
-    {
-    }
-
-    const char* what() const noexcept override
-    {
-        return message.c_str();
-    }
-};
-
-class MappedFileOpenException : public MappedIOException {
-private:
-    const char* path = nullptr;
-public:
-    MappedFileOpenException()
-        : MappedIOException("Error: Unable to open mapped file.")
-    {
-    }
-
-    explicit MappedFileOpenException(const std::string& msg, const std::string& path = "")
-        : MappedIOException("Error: Unable to open mapped file: " + msg)
-    {
-        this->path = path.c_str();
-    }
-};
-
-class MappedFileCloseException : public MappedIOException {
-public:
-    MappedFileCloseException()
-        : MappedIOException("Error: Unable to close mapped file.")
-    {
-    }
-
-    explicit MappedFileCloseException(const std::string& msg)
-        : MappedIOException("Error: Unable to close mapped file: " + msg)
-    {
-    }
-};
-
+/*
+ * Base class for mapped files (abstract)
+ * Requires implementation of .open()
+ *
+ */
 template <typename T>
 class MappedFileBase { // Abstract class
 protected:
     MappedFile fs;
 
 public:
-    MappedFileBase()
-    {
-        fs.size = 0;
-        fs.data = nullptr;
-    }
+    // Does not open file automatically
+    MappedFileBase();
 
     virtual void open(const char* path) = 0;
-    virtual void close()
-    {
-        bool res = unmap_file(&fs);
-        if (!res)
-            throw MappedFileCloseException();
-    }
+    // Should be closed manually for objects of derived class,
+    // unless they override the destructor
+    virtual void close();
+    T operator[](size_t index);
+    size_t size() const;
 
-    size_t size() const
-    {
-        return fs.size;
-    }
-
-    T operator[](size_t index)
-    {
-        if (fs.data == nullptr)
-            throw std::logic_error("File is not open");
-        if (index > fs.size) {
-            throw std::out_of_range("MappedFile: index out of range");
-        }
-        return fs.data[index];
-    }
-    virtual ~MappedFileBase()
-    {
-    }
+    // Doesn't do anything in base class
+    virtual ~MappedFileBase();
 };
 
-class MappedFileRead : public MappedFileBase<char> {
-public:
-    MappedFileRead(const char* path)
-        : MappedFileBase<char>()
-    {
-        this->open(path);
-    }
+template <typename T>
+MappedFileBase<T>::MappedFileBase()
+{
+    fs.size = 0;
+    fs.data = nullptr;
+}
 
-    virtual void open(const char* path) override
-    {
-        bool res = map_entire_file(path, &fs, M_READ);
-        if (!res)
-            throw MappedFileOpenException(Last_Error_Str(), path);
-    }
-};
+template <typename T>
+void MappedFileBase<T>::close()
+{
+    bool res = unmap_file(&fs);
+    if (!res)
+        throw MappedFileCloseException();
+}
 
-class MappedFileWrite : public MappedFileBase<char&> {
-public:
-    MappedFileWrite(const char* path)
-        : MappedFileBase<char&>()
-    {
-        this->open(path);
-    }
+template <typename T>
+size_t MappedFileBase<T>::size() const
+{
+    return fs.size;
+}
 
-    virtual void open(const char* path) override
-    {
-        bool res = map_entire_file(path, &fs, M_READ | M_WRITE);
-        if (!res)
-            throw MappedFileOpenException(Last_Error_Str(), path);
+template <typename T>
+T MappedFileBase<T>::operator[](size_t index)
+{
+    if (fs.data == nullptr)
+        throw std::logic_error("File is not open");
+    if (index > fs.size) {
+        throw std::out_of_range("MappedFile: index out of range");
     }
-};
+    return fs.data[index];
+}
+
+template <typename T>
+MappedFileBase<T>::~MappedFileBase<T>()
+{
+}
 #endif // MAPPEDFILEBASE_H_
