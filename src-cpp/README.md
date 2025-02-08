@@ -1,5 +1,5 @@
 # About this class library
-This is an abstraction layer over C functions for mapping files into memory.\
+This is an abstraction layer over C functions for mapping files into memory.
 ## This directory contains:
 ### Classes
 - `MappedFileBase` (abstract class) - Base class for mapped files into memory
