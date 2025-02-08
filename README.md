@@ -3,8 +3,13 @@
 Cross-platform example of mapping files into memory written in C \
 Partially inspired from [tsoding/nob.h](https://github.com/tsoding/nob.h/)
 
+# Contents of this repository
+1. [`map_files.h`](https://github.com/sinexl/map_entire_file.c/blob/main/map_files.h)(C/C++) - Single-header library that abstracts from OS-specific way to map files into memory.
+2. [`Map file class library`](https://github.com/sinexl/map_entire_file.c/tree/main/src-cpp)(C++ only) - Abstraction layer over `map_files.h` which provides classes for convenient working with mapped files.
+***
+- If you need first part of this library, just copy [`map_files.h`](https://github.com/sinexl/map_entire_file.c/blob/main/map_files.h) file to your project, define a macro and include the file (See example below)
+- If you need second part of this library, you need to copy both [`src-cpp/`](https://github.com/sinexl/map_entire_file.c/tree/main/src-cpp) and [`map_files.h`](https://github.com/sinexl/map_entire_file.c/blob/main/map_files.h) to your project 
 # Usage
-
 ``` c
 // This is header-only library, so you need to define MAP_FILES_IMPLEMENTATION
 // to use it
