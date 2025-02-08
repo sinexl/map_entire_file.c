@@ -22,9 +22,10 @@ public:
     virtual void open(const char* path) = 0;
     // Should be closed manually for objects of derived class,
     // unless they override the destructor
+    // Resets the variable
     virtual void close();
     T operator[](size_t index);
-    size_t size() const;
+    size_t size() const noexcept;
     bool is_open() const noexcept;
 
     // Doesn't do anything in base class
@@ -47,7 +48,7 @@ void MappedFileBase<T>::close()
 }
 
 template <typename T>
-size_t MappedFileBase<T>::size() const
+size_t MappedFileBase<T>::size() const noexcept
 {
     return fs.size;
 }
@@ -70,7 +71,7 @@ bool MappedFileBase<T>::is_open() const noexcept
 }
 
 template <typename T>
-MappedFileBase<T>::~MappedFileBase<T>()
+MappedFileBase<T>::~MappedFileBase()
 {
 }
 #endif // MAPPEDFILEBASE_H_
