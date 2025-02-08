@@ -222,9 +222,6 @@ defer:
 }
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 bool map_entire_file(const char* path, MappedFile* fm, int permissions)
 {
 #ifndef _WIN32
@@ -299,9 +296,6 @@ defer: if (!result){
     return result;
 }
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif // MAP_FILES_IMPLEMENTATION
 
