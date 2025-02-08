@@ -25,6 +25,7 @@ public:
     virtual void close();
     T operator[](size_t index);
     size_t size() const;
+    bool is_open() const noexcept;
 
     // Doesn't do anything in base class
     virtual ~MappedFileBase();
@@ -60,6 +61,12 @@ T MappedFileBase<T>::operator[](size_t index)
         throw std::out_of_range("MappedFile: index out of range");
     }
     return fs.data[index];
+}
+
+template<typename T>
+bool MappedFileBase<T>::is_open() const noexcept
+{
+    return this->fs.data != nullptr;
 }
 
 template <typename T>
