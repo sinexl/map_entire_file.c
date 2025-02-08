@@ -44,6 +44,13 @@ typedef enum {
     M_READ  = FILE_MAP_READ,
     M_WRITE = FILE_MAP_WRITE,
 } MapPermission;
+#ifdef __cplusplus
+extern "C"{
+#endif
+char* win32_err_to_str(DWORD err);
+#ifdef __cplusplus
+}
+#endif
 #    ifndef WIN32_MSG_SIZE
 #        define WIN32_MSG_SIZE (4 * 1024)
 #    endif // WIN32_MSG_SIZE
@@ -61,27 +68,21 @@ typedef enum {
     LOG_ERROR,
     LOG_NOTHING,
 } Log_Level;
-
-#ifdef _WIN32
-char* win32_err_to_str(DWORD err);
-#endif
-
-void log_print(Log_Level level, const char* fmt, ...);
-
-fd_t fd_open(const char* path, int flags);
-
-void fd_close(fd_t fd);
-
 typedef struct {
     char* data;
     size_t size;
 } MappedFile;
 
-bool unmap_file(MappedFile* fm);
-
-bool map_entire_file(const char* path, MappedFile* fm, int permissions);
-
+#ifdef __cplusplus
+extern "C" {
+#endif
+static void log_print(Log_Level level, const char* fmt, ...);
+static fd_t fd_open(const char* path, int flags);
+static void fd_close(fd_t fd);
+static bool unmap_file(MappedFile* fm);
+static bool map_entire_file(const char* path, MappedFile* fm, int permissions);
 #ifdef MAP_FILES_IMPLEMENTATION
+
 #ifdef _WIN32
 char* win32_err_to_str(DWORD err)
 {
@@ -298,5 +299,7 @@ defer: if (!result){
 
 
 #endif // MAP_FILES_IMPLEMENTATION
-
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 #endif // MAP_FILES_H_
