@@ -23,7 +23,7 @@ public:
 
 class MappedFileOpenException : public MappedIOException {
 private:
-    const char* path;
+    const char* path = nullptr;
 public:
     MappedFileOpenException()
         : MappedIOException("Error: Unable to open mapped file.")
@@ -31,13 +31,10 @@ public:
     }
 
     explicit MappedFileOpenException(const std::string& msg, const std::string& path = "")
-        : MappedIOException("Error: Unable to open mapped file at " + path + ": " + msg)
+        : MappedIOException("Error: Unable to open mapped file: " + msg)
     {
+        this->path = path.c_str();
     }
-
-
-
-
 };
 
 class MappedFileCloseException : public MappedIOException {
@@ -54,7 +51,7 @@ public:
 };
 
 template <typename T>
-class MappedFileBase {
+class MappedFileBase { // Abstract class
 protected:
     MappedFile fs;
 
