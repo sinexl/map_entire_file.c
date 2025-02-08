@@ -12,6 +12,7 @@
  */
 template <typename T>
 class MappedFileBase { // Abstract class
+
 protected:
     MappedFile fs;
 
@@ -19,7 +20,7 @@ public:
     // Does not open file automatically
     MappedFileBase();
 
-    virtual void open(const char* path) = 0;
+    virtual void open(const char *path) = 0;
     // Should be closed manually for objects of derived class,
     // unless they override the destructor
     // Resets the variable
@@ -30,6 +31,12 @@ public:
 
     // Doesn't do anything in base class
     virtual ~MappedFileBase();
+    MappedFileBase(MappedFileBase &&);
+    MappedFileBase &operator=(MappedFileBase &&);
+
+private:
+    MappedFileBase(const MappedFileBase&) { };
+    MappedFileBase& operator=(const MappedFileBase&) { }
 };
 
 template <typename T>
@@ -64,10 +71,28 @@ T MappedFileBase<T>::operator[](size_t index)
     return fs.data[index];
 }
 
-template<typename T>
+template <typename T>
 bool MappedFileBase<T>::is_open() const noexcept
 {
     return this->fs.data != nullptr;
+}
+
+template <typename T>
+MappedFileBase<T>::MappedFileBase(MappedFileBase<T>&& going_to_be_destroyed)
+{
+    this->fs = std::move(going_to_be_destroyed.fs);
+    going_to_be_destroyed.fs.data = nullptr;
+    going_to_be_destroyed.fs.size = 0;
+}
+template <typename T>
+MappedFileBase<T>& MappedFileBase<T>::operator=(MappedFileBase<T>&& going_to_be_destroyed) {
+    if (this != &going_to_be_destroyed)
+    {
+        this->fs = std::move(going_to_be_destroyed.fs);
+        going_to_be_destroyed.fs.data = nullptr;
+        going_to_be_destroyed.fs.size = 0;
+    }
+    return *this;
 }
 
 template <typename T>
